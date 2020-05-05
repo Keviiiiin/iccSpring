@@ -64,13 +64,13 @@
   
   * 一个应用只有一个对象的实例。它的作用范围就是整个引用。
 
-  * 生命周期：创建容器时，对象就被创建了。只要容器在，对象一直活着。当应用卸载，销毁容器时，对象就被销毁了。
+  * 生命周期：创建容器时，对象就被创建了。只要*容器*在，对象一直活着。当应用卸载，销毁容器时，对象就被销毁了。
 
 * 多例对象： scope="prototype"
 
   * 每次访问对象时，都会重新创建对象实例。
 
-  * 生命周期：当使用对象时，创建新的对象实例。只要对象在使用中，就一直活着。当对象长时间不用时，被 java 的垃圾回收器回收了。
+  * 生命周期：当*使用对象*时，创建新的对象实例。只要对象在使用中，就一直活着。当对象长时间不用时，被 java 的*垃圾回收器*回收了。
 
 ### 实例化 Bean 的三种方式
 第一种方式：使用默认无参构造函数
@@ -108,7 +108,7 @@ factory-method="createAccountService"></bean>
 ```java
 /**
 * 模拟一个实例工厂，创建业务层实现类
-* 此工厂创建对象，必须现有工厂实例对象，再调用方法
+* 此工厂创建对象，没有构造函数可以调用，必须先有工厂实例对象，再调用方法
 */
 public class InstanceFactory {
     public IAccountService createAccountService(){
@@ -125,6 +125,6 @@ factory-method 属性：用于指定实例工厂中创建对象的方法。
 -->
 <bean id="instanceFactory" class="com.itheima.factory.InstanceFactory"></bean>
 <bean id="accountService"
-factory-bean="instancFactory"
+factory-bean="instanceFactory"
 factory-method="createAccountService"></bean>
 ```
