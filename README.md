@@ -128,3 +128,139 @@ factory-method 属性：用于指定实例工厂中创建对象的方法。
 factory-bean="instanceFactory"
 factory-method="createAccountService"></bean>
 ```
+
+### spring中的依赖注入
+在当前类需要用到其他类的对象，由spring为我们提供，我们只需要在配置文件中说明.依赖关系的维护就称之为依赖注入。
+* 能注入的数据：
+1.基本类型和String
+2.其他bean类型（在配置文件中或者注解配置过的bean）
+3.复杂类型/集合类型
+* 注入的方式：
+#### 1.使用构造函数提供（了解）
+使用的标签:constructor-arg
+标签出现的位置：bean标签的内部
+标签中的属性
+    type：用于指定要注入的数据的数据类型，该数据类型也是构造函数中某个或某些参数的类型
+    index：用于指定要注入的数据给构造函数中指定索引位置的参数赋值。索引的位置是从0开始
+    name：用于指定给构造函数中指定名称的参数赋值（_常用的_）
+    =============以上三个用于指定给构造函数中哪个参数赋值===============================
+    value：用于提供基本类型和String类型的数据
+    ref：用于指定其他的bean类型数据。它指的就是在spring的Ioc核心容器中出现过的bean对象
+
+优势：
+    在获取bean对象时，注入数据是必须的操作，否则对象无法创建成功。
+弊端：
+    改变了bean对象的实例化方式，使我们在创建对象时，如果用不到这些数据，也必须提供。
+
+```xml
+<bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl">
+    <constructor-arg name="name" value="泰斯特"></constructor-arg>
+    <constructor-arg name="age" value="18"></constructor-arg>
+    <constructor-arg name="birthday" ref="now"></constructor-arg>
+</bean>
+
+<!-- 配置一个日期对象 -->
+<bean id="now" class="java.util.Date"></bean>
+```
+#### 2.使用set方法提供
+更常用的方式
+涉及的标签：property
+出现的位置：bean标签的内部
+标签的属性
+    name：用于指定注入时所调用的set方法名称
+    value：用于提供基本类型和String类型的数据
+    ref：用于指定其他的bean类型数据。它指的就是在spring的Ioc核心容器中出现过的bean对象
+优势：
+    创建对象时没有明确的限制，可以直接使用默认构造函数
+弊端：
+    如果有某个成员必须有值，则获取对象是有可能set方法没有执行。
+```xml
+<bean id="accountService2" class="com.itheima.service.impl.AccountServiceImpl2">
+    <property name="name" value="TEST" ></property>
+    <property name="age" value="21"></property>
+    <property name="birthday" ref="now"></property>
+</bean>
+```
+```java
+/**
+ * 账户的业务层实现类
+ */
+public class AccountServiceImpl2 implements IAccountService {
+
+    //如果是经常变化的数据，并不适用于注入的方式
+    private String name;
+    private Integer age;
+    private Date birthday;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public void  saveAccount(){
+        System.out.println("service中的saveAccount方法执行了。。。"+name+","+age+","+birthday);
+    }
+
+}
+```
+
+* 如果是集合类的数据：
+1.用于给List结构集合注入的标签：
+
+    list array set
+  
+2.用于给Map结构集合注入的标签:
+
+    map props
+
+结构相同，标签可以互换
+
+```xml
+<bean id="accountService3" class="com.itheima.service.impl.AccountServiceImpl3">
+    <property name="myStrs">
+        <set>
+            <value>AAA</value>
+            <value>BBB</value>
+            <value>CCC</value>
+        </set>
+    </property>
+
+    <property name="myList">
+        <array>
+            <value>AAA</value>
+            <value>BBB</value>
+            <value>CCC</value>
+        </array>
+    </property>
+
+    <property name="mySet">
+        <list>
+            <value>AAA</value>
+            <value>BBB</value>
+            <value>CCC</value>
+        </list>
+    </property>
+
+    <property name="myMap">
+        <props>
+            <prop key="testC">ccc</prop>
+            <prop key="testD">ddd</prop>
+        </props>
+    </property>
+
+    <property name="myProps">
+        <map>
+            <entry key="testA" value="aaa"></entry>
+            <entry key="testB" value="BBB"></entry>
+        </map>
+    </property>
+</bean>
+```
+#### 3.使用注解提供
