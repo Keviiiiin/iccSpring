@@ -402,4 +402,19 @@ public class AccountServiceImpl2 implements IAccountService {
      
      * 属性：value：指定文件的名称和路径。前面要加classpath，表示类路径下
 
+### Spring整合junit的配置
+
+ * 1、导入spring整合junit的坐标spring-test
+
+ * 2、使用Junit提供的一个注解把原有的main方法替换了，替换成spring提供的@Runwith
+
+ * 3、告知spring的运行器，spring和ioc创建是基于xml还是注解的，并且说明位置
+
+     * @ContextConfiguration
+    
+         * locations：指定xml文件的位置，加上classpath关键字，表示在类路径下
+        
+         * classes：指定注解类所在地位置
+
+ * 版本要求：junit>=4.12
 
