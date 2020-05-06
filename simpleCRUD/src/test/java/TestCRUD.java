@@ -4,8 +4,10 @@ import com.iccKevin.service.AccountService;
 import org.apache.commons.dbutils.QueryRunner;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 
@@ -14,18 +16,22 @@ import java.util.List;
  * @author: iccKevin
  * @create: 2020-05-06 20:48
  **/
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:bean.xml")
 public class TestCRUD {
-    private ApplicationContext ac;
 
-    AccountService accountService;
+//    private ApplicationContext ac;
 
-    @Before
-    public void init(){
-        ac = new ClassPathXmlApplicationContext("bean.xml");
-//        System.out.println(ac.getBean("accountDao", AccountDao.class));
-//        System.out.println(ac.getBean("runner", QueryRunner.class));
-        accountService = ac.getBean("accountService", AccountService.class);
-    }
+    @Autowired
+    private AccountService accountService;
+
+//    @Before
+//    public void init(){
+//        ac = new ClassPathXmlApplicationContext("bean.xml");
+////        System.out.println(ac.getBean("accountDao", AccountDao.class));
+////        System.out.println(ac.getBean("runner", QueryRunner.class));
+//        accountService = ac.getBean("accountService", AccountService.class);
+//    }
     @Test
     public void testFindAll(){
         List<Account> accounts = accountService.findAll();
