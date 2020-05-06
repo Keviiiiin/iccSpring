@@ -77,7 +77,7 @@
 ```xml
 <!--在默认情况下：
 它会根据默认无参构造函数来创建类对象。如果 bean 中没有默认无参构造函数，将会创建失败。-->
-<bean id="accountService" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl"/>
+<bean id="accountService" class="com.iccKevin.com.AccountServiceImpl"/>
 ```
 
 第二种方式： spring 管理静态工厂-使用静态工厂的方法创建对象
@@ -100,7 +100,7 @@ class 属性：指定静态工厂的全限定类名
 factory-method 属性：指定生产对象的静态方法
 -->
 <bean id="accountService"
-class="com.itheima.factory.StaticFactory"
+class="com.iccKevin.factory.StaticFactory"
 factory-method="createAccountService"></bean>
 ```
 
@@ -123,7 +123,7 @@ public class InstanceFactory {
 factory-bean 属性：用于指定实例工厂 bean 的 id。
 factory-method 属性：用于指定实例工厂中创建对象的方法。
 -->
-<bean id="instanceFactory" class="com.itheima.factory.InstanceFactory"></bean>
+<bean id="instanceFactory" class="com.iccKevin.factory.InstanceFactory"></bean>
 <bean id="accountService"
 factory-bean="instanceFactory"
 factory-method="createAccountService"></bean>
@@ -159,7 +159,7 @@ factory-method="createAccountService"></bean>
         改变了bean对象的实例化方式，使我们在创建对象时，如果用不到这些数据，也必须提供。
 
 ```xml
-<bean id="accountService" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl">
+<bean id="accountService" class="com.iccKevin.com.AccountServiceImpl">
     <constructor-arg name="name" value="泰斯特"></constructor-arg>
     <constructor-arg name="age" value="18"></constructor-arg>
     <constructor-arg name="birthday" ref="now"></constructor-arg>
@@ -193,7 +193,7 @@ factory-method="createAccountService"></bean>
     如果有某个成员必须有值，则获取对象是有可能set方法没有执行。
 
 ```xml
-<bean id="accountService2" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl2">
+<bean id="accountService2" class="com.iccKevin.com.iccKevin.service.impl.AccountServiceImpl2">
     <property name="name" value="TEST" ></property>
     <property name="age" value="21"></property>
     <property name="birthday" ref="now"></property>
@@ -242,7 +242,7 @@ public class AccountServiceImpl2 implements IAccountService {
 结构相同，标签可以互换
 
 ```xml
-<bean id="accountService3" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl3">
+<bean id="accountService3" class="com.iccKevin.com.iccKevin.service.impl.AccountServiceImpl3">
     <property name="myStrs">
         <set>
             <value>AAA</value>
@@ -355,5 +355,51 @@ public class AccountServiceImpl2 implements IAccountService {
 * PreDestroy
 
   * 作用：用于指定销毁方法
+
+### 常用配置习惯
+
+* 注入自己写的类，用注解；注入jar包中的，用xml
+
+## spring基于注解的配置和一些新注解
+ 
+ * @Configuration
+ 
+     * 作用：指定当前类是一个配置类，相当于这是一个bean.xml文件
+     
+     * 细节：当配置类作为AnnotationConfigApplicationContext对象创建的参数时，该注解可以不写。
+ 
+ * @ComponentScan
+ 
+     * 作用：用于通过注解指定spring在创建容器时要扫描的包
+     
+     * 属性：value：它和basePackages的作用是一样的，都是用于指定创建容器时要扫描的包。
+     
+     * 我们使用此注解就等同于在xml中配置了:\<context:component-scan base-package="com.itheima"></context:component-scan>
+ 
+ * @Bean
+ 
+     * 作用：用于把当前方法的返回值作为bean对象存入spring的ioc容器中
+     
+     * 属性:name:用于指定bean的id。当不写时，默认值是当前方法的名称
+     
+     * 细节：
+     
+         * 当我们使用注解配置方法时，如果方法有参数，spring框架会去容器中查找有没有可用的bean对象。
+         
+         * 查找的方式和Autowired注解的作用是一样的：先匹配类型，再按指定名称找
+ 
+ * @Import
+ 
+     * 作用：用于导入其他的配置类
+     
+     * 属性：value：用于指定其他配置类的字节码。
+     
+     * 当我们使用Import的注解之后，有Import注解的类就是父配置类，而导入的都是子配置类
+ 
+ * @PropertySource
+ 
+     * 作用：用于指定properties文件的位置
+     
+     * 属性：value：指定文件的名称和路径。前面要加classpath，表示类路径下
 
 
