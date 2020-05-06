@@ -77,7 +77,7 @@
 ```xml
 <!--在默认情况下：
 它会根据默认无参构造函数来创建类对象。如果 bean 中没有默认无参构造函数，将会创建失败。-->
-<bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl"/>
+<bean id="accountService" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl"/>
 ```
 
 第二种方式： spring 管理静态工厂-使用静态工厂的方法创建对象
@@ -159,7 +159,7 @@ factory-method="createAccountService"></bean>
         改变了bean对象的实例化方式，使我们在创建对象时，如果用不到这些数据，也必须提供。
 
 ```xml
-<bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl">
+<bean id="accountService" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl">
     <constructor-arg name="name" value="泰斯特"></constructor-arg>
     <constructor-arg name="age" value="18"></constructor-arg>
     <constructor-arg name="birthday" ref="now"></constructor-arg>
@@ -193,7 +193,7 @@ factory-method="createAccountService"></bean>
     如果有某个成员必须有值，则获取对象是有可能set方法没有执行。
 
 ```xml
-<bean id="accountService2" class="com.itheima.service.impl.AccountServiceImpl2">
+<bean id="accountService2" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl2">
     <property name="name" value="TEST" ></property>
     <property name="age" value="21"></property>
     <property name="birthday" ref="now"></property>
@@ -242,7 +242,7 @@ public class AccountServiceImpl2 implements IAccountService {
 结构相同，标签可以互换
 
 ```xml
-<bean id="accountService3" class="com.itheima.service.impl.AccountServiceImpl3">
+<bean id="accountService3" class="com.itheima.com.iccKevin.service.impl.AccountServiceImpl3">
     <property name="myStrs">
         <set>
             <value>AAA</value>
