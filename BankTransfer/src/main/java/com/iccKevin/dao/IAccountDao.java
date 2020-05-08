@@ -22,6 +22,13 @@ public interface IAccountDao {
     Account findAccountById(Integer accountId);
 
     /**
+     * 根据名称查询
+     * @param accountName
+     * @return
+     */
+    Account findAccountByName(String accountName);
+
+    /**
      * 保存
      * @param account
      */
@@ -35,7 +42,7 @@ public interface IAccountDao {
 
     /**
      * 删除
-     * @param acccountId
+     * @param accountId
      */
-    void deleteAccount(Integer acccountId);
+    void deleteAccount(Integer accountId);
 }

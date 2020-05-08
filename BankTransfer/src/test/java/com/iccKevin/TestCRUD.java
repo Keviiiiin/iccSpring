@@ -27,7 +27,7 @@ public class TestCRUD {
     }
     @Test
     public void testFindOne(){
-        Account account = accountService.findAccountById(4);
+        Account account = accountService.findAccountById(5);
         System.out.println(account);
     }
     @Test
@@ -52,5 +52,10 @@ public class TestCRUD {
     public void testDelete() {
         //3.执行方法
         accountService.deleteAccount(4);
+    }
+
+    @Test
+    public  void testTransfer(){
+        accountService.transfer("aaa","bbb",100f);
     }
 }

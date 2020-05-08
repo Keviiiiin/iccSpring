@@ -38,7 +38,18 @@ public class AccountServiceImpl implements IAccountService {
     }
 
     @Override
-    public void deleteAccount(Integer acccountId) {
-        accountDao.deleteAccount(acccountId);
+    public void deleteAccount(Integer accountId) {
+        accountDao.deleteAccount(accountId);
+    }
+
+    @Override
+    public void transfer(String sourceName, String targetName, Float money) {
+        Account source = accountDao.findAccountByName(sourceName);
+        Account target = accountDao.findAccountByName(targetName);
+        source.setMoney(source.getMoney()-money);
+        target.setMoney(target.getMoney()+money);
+        accountDao.updateAccount(source);
+        int i = 1/0;
+        accountDao.updateAccount(target);
     }
 }

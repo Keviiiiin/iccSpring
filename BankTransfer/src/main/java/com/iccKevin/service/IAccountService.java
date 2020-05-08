@@ -35,9 +35,16 @@ public interface IAccountService {
 
     /**
      * 删除
-     * @param acccountId
+     * @param accountId
      */
-    void deleteAccount(Integer acccountId);
+    void deleteAccount(Integer accountId);
 
+    /**
+     * 转账
+     * @param sourceName
+     * @param targetName
+     * @param money
+     */
+    void transfer(String sourceName,String targetName,Float money);
 
 }
