@@ -277,7 +277,7 @@ factory-method="createAccountService"></bean>
    
     * 如果Ioc容器中有多个类型匹配时：查找与变量名匹配的key，没有则报错
     
-    <img src="img/自动按照类型注入"></img>
+    <img src="img/自动按照类型注入.png"></img>
    
   * 出现位置：可以是变量上，也可以是方法上
    
