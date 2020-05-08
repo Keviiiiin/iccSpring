@@ -12,30 +12,25 @@
 
 ### BeanFactory 和 ApplicationContext 的区别
 
-* BeanFactory 是 Spring 容器中的顶层接口。
+* BeanFactory 是 Spring 容器中的顶层接口；ApplicationContext 是它的子接口。
 
-* ApplicationContext 是它的子接口。
+* 创建对象的时间点不一样。
 
-#### BeanFactory 和 ApplicationContext 的区别：
-
-创建对象的时间点不一样。
-
-* ApplicationContext：立即加载；只要一读取配置文件，默认情况下就会创建对象。
-
-* BeanFactory：延迟加载；什么时候用什么时候创建对象。
-
+    * BeanFactory：延迟加载；什么时候用什么时候创建对象。
+    
+    * ApplicationContext：立即加载；只要一读取配置文件，默认情况下就会创建对象。
+    
 ### ApplicationContext 接口的实现类
 
-* ClassPathXmlApplicationContext：从类的根路径下加载配置文件----推荐使用这种
+* ClassPathXmlApplicationContext：从类的根路径下加载配置文件----**推荐使用这种**
 
 * FileSystemXmlApplicationContext：从磁盘路径上加载配置文件，配置文件可以在磁盘的任意位置。
 
-* AnnotationConfigApplicationContext:当我们使用注解配置容器对象时，需要使用此类来创建 spring 容器。它用来读取注解。
+* AnnotationConfigApplicationContext:当我们使用注解配置容器对象时，需要使用此类来创建 spring 容器。它用来读取注解。但测试类中一般不会用，一般都是用spring-test创建容器
 
 ### bean 标签
-* 作用：
 
-  * 用于配置对象让 spring 来创建的。默认情况下它调用的是类中的无参构造函数。如果没有无参构造函数则不能创建成功。
+* 作用：用于配置对象让 spring 来创建的。**默认情况下它调用的是类中的无参构造函数。如果没有无参构造函数则不能创建成功**。
 
 * 属性：
 
@@ -60,9 +55,10 @@
 * destroy-method： 指定类中销毁方法名称。
 
 ### bean 的作用范围和生命周期
-* 单例对象： scope="singleton"
+
+* 单例对象： scope="singleton"（存在线程安全问题）
   
-  * 一个应用只有一个对象的实例。它的作用范围就是整个引用。
+  * 一个应用只有一个对象的实例。它的作用范围就是整个应用。
 
   * 生命周期：创建容器时，对象就被创建了。只要*容器*在，对象一直活着。当应用卸载，销毁容器时，对象就被销毁了。
 
@@ -73,10 +69,9 @@
   * 生命周期：当*使用对象*时，创建新的对象实例。只要对象在使用中，就一直活着。当对象长时间不用时，被 java 的*垃圾回收器*回收了。
 
 ### 实例化 Bean 的三种方式
+
 第一种方式：使用默认无参构造函数
 ```xml
-<!--在默认情况下：
-它会根据默认无参构造函数来创建类对象。如果 bean 中没有默认无参构造函数，将会创建失败。-->
 <bean id="accountService" class="com.iccKevin.com.AccountServiceImpl"/>
 ```
 
