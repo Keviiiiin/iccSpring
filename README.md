@@ -2,13 +2,15 @@
 
 ### spring 的体系结构
 
-<img src="spring体系结构.png"></img>
+<img src="img/spring体系结构.png"></img>
 
 ### 工厂模式解耦
 
-在实际开发中我们可以把三层的对象都使用配置文件配置起来，当启动服务器应用加载的时候，让一个类中的方法通过*读取配置文件*，把这些对象*创建*出来并*存起来*。在接下来的使用的时候，直接拿过来用就好了。
+在实际开发中我们可以把三层的对象都使用配置文件配置起来，当启动服务器应用加载的时候，让一个类中的方法通过*解析配置文件*，把这些对象*创建*出来并*存起来*。在接下来的使用的时候，直接拿过来用就好了。
 
 那么，这个读取配置文件，创建和获取三层对象的类就是工厂。
+
+好处就是，摆脱了复杂的对象管理工作，不需要在对象内部使用new关键字创建别的对象，而是在容器内部使用反射创建对象，降低依赖关系，即编译器不依赖，运行时才依赖。
 
 ### BeanFactory 和 ApplicationContext 的区别
 
@@ -34,7 +36,7 @@
 
 * 属性：
 
-  * id： 给对象在容器中提供一个唯一标识。用于获取对象。
+  * id： 给对象在容器中提供一个唯一标识。_用于获取对象_。
 
   * class： 指定类的全限定类名。用于反射创建对象。默认情况下调用无参构造函数。
 
@@ -56,7 +58,7 @@
 
 ### bean 的作用范围和生命周期
 
-* 单例对象： scope="singleton"（存在线程安全问题）
+* 单例对象： scope="singleton"（操作类成员变量存在线程安全问题）
   
   * 一个应用只有一个对象的实例。它的作用范围就是整个应用。
 
@@ -75,7 +77,35 @@
 <bean id="accountService" class="com.iccKevin.com.AccountServiceImpl"/>
 ```
 
-第二种方式： spring 管理静态工厂-使用静态工厂的方法创建对象
+第二种方式： spring 管理实例工厂-使用实例工厂的方法创建对象
+
+使用场景：jar包中的类。没有构造函数可以调用，必须先有工厂对象，再调用方法
+
+先把工厂的创建交给 spring 来管理。
+
+然后在使用工厂的 bean 来调用里面的方法
+
+```java
+/**
+* 模拟一个实例工厂，创建业务层实现类
+*/
+public class InstanceFactory {
+    public IAccountService createAccountService(){
+        return new AccountServiceImpl();
+    }
+}
+```
+```xml
+<!--
+factory-bean 属性：用于指定实例工厂 bean 的 id。
+factory-method 属性：用于指定实例工厂中创建对象的方法。
+-->
+<bean id="instanceFactory" class="com.iccKevin.factory.InstanceFactory"></bean>
+<bean id="accountService" factory-bean="instanceFactory" factory-method="createAccountService"></bean>
+```
+
+第三种方式： spring 管理静态工厂-使用静态工厂方法创建对象
+
 ```java
 /**
 * 模拟一个静态工厂，创建业务层实现类
@@ -88,39 +118,9 @@ public class StaticFactory {
 ```
 
 ```xml
-<!-- 此种方式是:
-使用 StaticFactory 类中的静态方法 createAccountService 创建对象，并存入 spring 容器
-id 属性：指定 bean 的 id，用于从容器中获取
-class 属性：指定静态工厂的全限定类名
-factory-method 属性：指定生产对象的静态方法
--->
+<!-- factory-method 属性：指定生产对象的静态方法-->
 <bean id="accountService"
 class="com.iccKevin.factory.StaticFactory"
-factory-method="createAccountService"></bean>
-```
-
-第三种方式： spring 管理实例工厂-使用实例工厂的方法创建对象
-```java
-/**
-* 模拟一个实例工厂，创建业务层实现类
-* 此工厂创建对象，没有构造函数可以调用，必须先有工厂实例对象，再调用方法
-*/
-public class InstanceFactory {
-    public IAccountService createAccountService(){
-        return new AccountServiceImpl();
-    }
-}
-```
-```xml
-<!-- 此种方式是：
-先把工厂的创建交给 spring 来管理。
-然后在使用工厂的 bean 来调用里面的方法
-factory-bean 属性：用于指定实例工厂 bean 的 id。
-factory-method 属性：用于指定实例工厂中创建对象的方法。
--->
-<bean id="instanceFactory" class="com.iccKevin.factory.InstanceFactory"></bean>
-<bean id="accountService"
-factory-bean="instanceFactory"
 factory-method="createAccountService"></bean>
 ```
 
@@ -139,11 +139,10 @@ factory-method="createAccountService"></bean>
 #### 1.使用构造函数提供（了解）
     
     使用的标签:constructor-arg
-    标签出现的位置：bean标签的内部
     标签中的属性
         type：用于指定要注入的数据的数据类型，该数据类型也是构造函数中某个或某些参数的类型
         index：用于指定要注入的数据给构造函数中指定索引位置的参数赋值。索引的位置是从0开始
-        name：用于指定给构造函数中指定名称的参数赋值（_常用的_）
+        name：用于指定给构造函数中指定名称的参数赋值（**常用的**）
         =============以上三个用于指定给构造函数中哪个参数赋值===============================
         value：用于提供基本类型和String类型的数据
         ref：用于指定其他的bean类型数据。它指的就是在spring的Ioc核心容器中出现过的bean对象
@@ -169,8 +168,6 @@ factory-method="createAccountService"></bean>
 
 涉及的标签：property
 
-出现的位置：bean标签的内部
-
 标签的属性
 
     name：用于指定注入时所调用的set方法名称
@@ -193,35 +190,6 @@ factory-method="createAccountService"></bean>
     <property name="age" value="21"></property>
     <property name="birthday" ref="now"></property>
 </bean>
-```
-```java
-/**
- * 账户的业务层实现类
- */
-public class AccountServiceImpl2 implements IAccountService {
-
-    //如果是经常变化的数据，并不适用于注入的方式
-    private String name;
-    private Integer age;
-    private Date birthday;
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
-    }
-
-    public void  saveAccount(){
-        System.out.println("service中的saveAccount方法执行了。。。"+name+","+age+","+birthday);
-    }
-
-}
 ```
 
 * 如果是集合类的数据：
@@ -285,7 +253,7 @@ public class AccountServiceImpl2 implements IAccountService {
    
     * 作用：用于把当前类对象存入spring容器中
      
-    * value属性用于指定bean的id。当我们不写时，它的默认值是当前类名，且首字母改小写。如：@Component("suibianxie")
+    * value属性用于指定bean的id。当我们不写时，它的**默认值是当前类名**，且首字母改小写。
  
 * Controller：一般用在表现层
  
@@ -295,7 +263,7 @@ public class AccountServiceImpl2 implements IAccountService {
  
 * 他们三个是spring框架为我们提供明确的三层使用的注解，使我们的三层对象更加清晰
 
-*注意：记得在xml中导入约束*
+*注意：记得在xml中导入context约束*
  
 ##### 用于注入数据的：相当于bean标签中的\<property>标签
  
@@ -308,6 +276,8 @@ public class AccountServiceImpl2 implements IAccountService {
     * 如果ioc容器中没有任何bean的类型和要注入的变量类型匹配，则报错。
    
     * 如果Ioc容器中有多个类型匹配时：查找与变量名匹配的key，没有则报错
+    
+    <img src="img/自动按照类型注入"></img>
    
   * 出现位置：可以是变量上，也可以是方法上
    
@@ -477,7 +447,7 @@ public class AccountServiceImpl implements IAccountService {
 
 * 通知类型
 
-<img src="通知的类型.jpg"></img>
+<img src="img/通知的类型.jpg"></img>
 
 #### spring中基于XML的AOP配置步骤
 
