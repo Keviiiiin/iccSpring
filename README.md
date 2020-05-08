@@ -418,3 +418,121 @@ public class AccountServiceImpl2 implements IAccountService {
 
  * 版本要求：junit>=4.12
 
+### 事务管理
+
+* 实现转账功能时，事务被自动控制了。换言之，我们使用了 connection 对象的 setAutoCommit(true)。
+
+* 业务层：
+
+```java
+public class AccountServiceImpl implements IAccountService{
+    @Override
+    public void transfer(String sourceName, String targetName, Float money) {
+        //根据名称查询两个账户信息
+        Account source = accountDao.findByName(sourceName);
+        Account target = accountDao.findByName(targetName);
+        //转出账户减钱，转入账户加钱
+        source.setMoney(source.getMoney()-money);
+        target.setMoney(target.getMoney()+money);
+        //更新两个账户
+        accountDao.update(source);
+        int i=1/0; //模拟转账异常
+        accountDao.update(target);
+        }
+}
+```
+
+* 此方式控制事务，如果我们每次都执行一条 sql 语句，没有问题，但是该方法一次要执行多条 sql 语句，这种方式就无法实现功能了
+
+* 改造：
+
+```java
+@Override
+public class AccountServiceImpl implements IAccountService {
+    public void transfer(String sourceName, String targetName, Float money) {
+        try {
+            TransactionManager.beginTransaction();
+
+            // 把业务操作用事务包裹起来
+            Account source = accountDao.findByName(sourceName);
+            Account target = accountDao.findByName(targetName);
+            source.setMoney(source.getMoney()-money);
+            target.setMoney(target.getMoney()+money);
+            accountDao.update(source);
+            int i=1/0;
+            accountDao.update(target);
+
+
+            TransactionManager.commit();
+        } catch (Exception e) {
+            TransactionManager.rollback();
+            e.printStackTrace();
+        }finally {
+            TransactionManager.release();
+        }
+    }
+}
+```
+
+* _存在的问题：service层每个方法都要被事务管理包裹，重复代码多，并且业务层方法和事务控制方法耦合了。_
+
+* 解决：动态代理AccountService。**原因：执行被代理对象的任何方法，都会经过invoke方法。可以添加事务控制对原有方法进行增强。**
+
+### spring中的AOP
+
+* 通知类型
+
+<img src="通知的类型.jpg"></img>
+
+#### spring中基于XML的AOP配置步骤
+
+1、把通知Bean也交给spring来管理
+
+2、使用aop:config标签表明开始AOP的配置
+
+3、使用aop:aspect标签表明配置切面
+   
+    id属性：是给切面提供一个唯一标识
+   
+    ref属性：是指定通知类bean的Id。
+
+4、在aop:aspect标签的内部使用对应标签来配置通知的类型
+
+我们现在示例是让printLog方法在切入点方法执行之前之前：所以是前置通知
+
+aop:before：表示配置前置通知
+
+     method属性：用于指定Logger类中哪个方法是前置通知
+
+     pointcut属性：用于指定切入点表达式，该表达式的含义指的是对业务层中哪些方法增强
+
+* 切入点表达式的写法：
+
+关键字：execution(表达式)
+
+    表达式：
+         访问修饰符  返回值  包名.包名.包名...类名.方法名(参数列表)
+    标准的表达式写法：
+     public void com.itheima.service.impl.AccountServiceImpl.saveAccount()
+    访问修饰符可以省略
+     void com.itheima.service.impl.AccountServiceImpl.saveAccount()
+    返回值可以使用通配符，表示任意返回值
+     * com.itheima.service.impl.AccountServiceImpl.saveAccount()
+    包名可以使用通配符，表示任意包。但是有几级包，就需要写几个*.
+     * *.*.*.*.AccountServiceImpl.saveAccount())
+    包名可以使用..表示当前包及其子包
+     * *..AccountServiceImpl.saveAccount()
+    类名和方法名都可以使用*来实现通配
+     * *..*.*()
+    参数列表：
+     可以直接写数据类型：
+         基本类型直接写名称           int
+         引用类型写包名.类名的方式   java.lang.String
+     可以使用通配符表示任意类型，但是必须有参数
+     可以使用..表示有无参数均可，有参数可以是任意类型
+    全通配写法：
+     * *..*.*(..)
+
+ * 实际开发中切入点表达式的通常写法：
+     
+     * 切到业务层实现类下的所有方法 com.itheima.service.impl.*.*(..)
