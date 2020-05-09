@@ -445,6 +445,8 @@ public class AccountServiceImpl implements IAccountService {
 
 ### spring中的AOP
 
+* 把我们程序重复的代码抽取出来，在需要执行的时候，使用动态代理的技术，在不修改源码的基础上，对我们的已有方法进行增强。
+
 * 通知类型
 
 <img src="img/通知的类型.jpg"></img>
@@ -463,13 +465,31 @@ public class AccountServiceImpl implements IAccountService {
 
 4、在aop:aspect标签的内部使用对应标签来配置通知的类型
 
-我们现在示例是让printLog方法在切入点方法执行之前之前：所以是前置通知
-
 aop:before：表示配置前置通知
 
      method属性：用于指定Logger类中哪个方法是前置通知
 
      pointcut属性：用于指定切入点表达式，该表达式的含义指的是对业务层中哪些方法增强
+
+```XML
+    <!-- 配置通知bean -->
+    <bean id="logger" class="com.itheima.utils.Logger"></bean>
+
+    <!--配置AOP-->
+    <aop:config>
+        <!-- 写在aop:aspect标签内部只能当前切面使用。写在aop:aspect外面，指所有切面可用-->
+        <aop:pointcut id="pt1" expression="execution(* com.itheima.service.impl.*.*(..))"></aop:pointcut>
+        <!--配置切面 -->
+        <aop:aspect id="logAdvice" ref="logger">
+            <aop:before method="beforePrintLog" pointcut-ref="pt1" ></aop:before>
+            <aop:after-returning method="afterReturningPrintLog" pointcut-ref="pt1"></aop:after-returning>
+            <aop:after-throwing method="afterThrowingPrintLog" pointcut-ref="pt1"></aop:after-throwing>
+            <aop:after method="afterPrintLog" pointcut-ref="pt1"></aop:after>
+
+            <aop:around method="aroundPringLog" pointcut-ref="pt1"></aop:around>
+        </aop:aspect>
+    </aop:config>
+```
 
 * 切入点表达式的写法：
 
